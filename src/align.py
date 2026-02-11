@@ -36,13 +36,13 @@ logger.addHandler(consolehandler)
 logger.addHandler(filehandler)
 
 
-def make_aligner(endedness, fastqs, ncpus, ramGB, indexdir):
+def make_aligner(endedness, fastqs, ncpus, ramGB, indexdir, waspVCF):
     if endedness == "single":
         logger.info("Creating a single-ended aligner.")
-        return SingleEndedStarAligner(fastqs, ncpus, ramGB, indexdir)
+        return SingleEndedStarAligner(fastqs, ncpus, ramGB, indexdir, waspVCF)
     elif endedness == "paired":
         logger.info("Creating a paired-end aligner.")
-        return PairedEndStarAligner(fastqs, ncpus, ramGB, indexdir)
+        return PairedEndStarAligner(fastqs, ncpus, ramGB, indexdir, waspVCF)
 
 
 def make_modified_TarInfo(archive, target_dir=""):
@@ -166,16 +166,19 @@ class SingleEndedStarAligner(StarAligner):
     --outSAMheaderHD @HD VN:1.4 SO:coordinate \
     --outSAMunmapped Within \
     --outFilterType BySJout \
-    --outSAMattributes NH HI AS NM MD \
+    --outSAMattributes NH HI AS NM MD vA vG vW \
     --outSAMstrandField intronMotif \
     --outSAMtype BAM SortedByCoordinate  \
     --quantMode TranscriptomeSAM \
     --sjdbScore 1 \
-    --limitBAMsortRAM {ramGB}000000000"""
+    --limitBAMsortRAM {ramGB}000000000 \
+    --waspOutputMode SAMtag \
+    --varVCFfile {waspVCF} """
 
-    def __init__(self, fastqs, ncpus, ramGB, indexdir):
+    def __init__(self, fastqs, ncpus, ramGB, indexdir, waspVCF):
         super().__init__(ncpus, ramGB, indexdir)
         self.input_fastq = fastqs[0]
+        self.waspVCF = waspVCF
         self.command = shlex.split(
             self.format_command_string(type(self).command_string)
         )
@@ -186,6 +189,7 @@ class SingleEndedStarAligner(StarAligner):
             ncpus=self.ncpus,
             ramGB=self.ramGB,
             indexdir=self.indexdir,
+            waspVCF=self.waspVCF
         )
         return cmd
 
@@ -209,16 +213,19 @@ class PairedEndStarAligner(StarAligner):
     --outSAMheaderHD @HD VN:1.4 SO:coordinate \
     --outSAMunmapped Within \
     --outFilterType BySJout \
-    --outSAMattributes NH HI AS NM MD \
+    --outSAMattributes NH HI AS NM MD vA vG vW \
     --outSAMtype BAM SortedByCoordinate \
     --quantMode TranscriptomeSAM \
     --sjdbScore 1 \
-    --limitBAMsortRAM {ramGB}000000000"""
+    --limitBAMsortRAM {ramGB}000000000 \
+    --waspOutputMode SAMtag \
+    --varVCFfile {waspVCF} """
 
-    def __init__(self, fastqs, ncpus, ramGB, indexdir):
+    def __init__(self, fastqs, ncpus, ramGB, indexdir, waspVCF):
         super().__init__(ncpus, ramGB, indexdir)
         self.fastq_read1 = fastqs[0]
         self.fastq_read2 = fastqs[1]
+        self.waspVCF = waspVCF
         self.command = shlex.split(
             self.format_command_string(type(self).command_string)
         )
@@ -230,6 +237,7 @@ class PairedEndStarAligner(StarAligner):
             ncpus=self.ncpus,
             ramGB=self.ramGB,
             indexdir=self.indexdir,
+            waspVCF=self.waspVCF
         )
         return cmd
 
@@ -251,7 +259,7 @@ def main(args):
     with tarfile.open(args.index, "r:gz") as archive:
         archive.extractall()
     aligner = make_aligner(
-        args.endedness, fastqs, args.ncpus, args.ramGB, args.indexdir
+        args.endedness, fastqs, args.ncpus, args.ramGB, args.indexdir, args.varVCFfile
     )
     aligner.run()
     cwd = os.getcwd()
@@ -334,6 +342,9 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--ramGB", type=int, help="Amount of RAM available in GB.", default=8
+    )
+    parser.add_argument(
+        "--varVCFfile", help="VCF file with variant positions to check alignment using WASP", required=True
     )
 
     args = parser.parse_args()
