@@ -77,6 +77,9 @@ workflow rna {
         String docker = "encodedcc/rna-seq-pipeline:1.2.4"
         String singularity = "docker://encodedcc/rna-seq-pipeline:1.2.4"
 
+        #this is for running wasp within star 
+        File varVCFfile
+
     }
 
     RuntimeEnvironment runtime_environment = {
@@ -112,6 +115,7 @@ workflow rna {
             fastqs_R1=fastqs_R1[i],
             fastqs_R2=fastqs_R2_[i],
             index=align_index,
+            varVCFfile=varVCFfile,
             bamroot="rep"+(i+1)+bamroot,
             ncpus=align_ncpus,
             ramGB=align_ramGB,
@@ -255,6 +259,7 @@ task align {
         Array[File] fastqs_R2
         String endedness
         File index
+        File varVCFfile
         String bamroot
         Int ncpus
         Int ramGB
@@ -268,6 +273,7 @@ task align {
             --fastqs_R2 ~{sep=' ' fastqs_R2} \
             --endedness ~{endedness} \
             --index ~{index} \
+            --varVCFfile ~{varVCFfile}
             ~{"--bamroot " + bamroot} \
             ~{"--ncpus " + ncpus} \
             ~{"--ramGB " + ramGB}
