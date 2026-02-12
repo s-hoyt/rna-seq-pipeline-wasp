@@ -25,16 +25,18 @@ WORKDIR /software
 ENV PATH="/software:${PATH}"
 
 # Install STAR/Samtools dependencies
-RUN wget http://zlib.net/zlib-1.2.11.tar.gz && tar -xvf zlib-1.2.11.tar.gz
-RUN cd zlib-1.2.11 && ./configure && make && make install && rm ../zlib-1.2.11.tar.gz
+RUN wget https://zlib.net/zlib-1.3.1.tar.gz && tar -xvf zlib-1.3.1.tar.gz
+RUN cd zlib-1.3.1 && ./configure && make && make install && rm ../zlib-1.3.1.tar.gz
 
 RUN wget https://tukaani.org/xz/xz-5.2.3.tar.gz && tar -xvf xz-5.2.3.tar.gz
 RUN cd xz-5.2.3 && ./configure && make && make install && rm ../xz-5.2.3.tar.gz
 
-# Install STAR 2.5.1b
-RUN wget https://github.com/alexdobin/STAR/archive/2.5.1b.tar.gz && tar -xzf 2.5.1b.tar.gz
-RUN cd STAR-2.5.1b && make STAR && rm ../2.5.1b.tar.gz
-ENV PATH="/software/STAR-2.5.1b/bin/Linux_x86_64:${PATH}"
+RUN apt update && apt install xxd
+
+# Install STAR 2.7.11b
+RUN wget https://github.com/alexdobin/STAR/archive/2.7.11b.tar.gz && tar -xzf 2.7.11b.tar.gz
+RUN cd STAR-2.7.11b/source && make STAR && rm ../../2.7.11b.tar.gz
+ENV PATH="/software/STAR-2.7.11b/bin/Linux_x86_64:${PATH}"
 
 # Install Kallisto 0.44.0
 RUN wget https://github.com/pachterlab/kallisto/releases/download/v0.44.0/kallisto_linux-v0.44.0.tar.gz && tar -xzf kallisto_linux-v0.44.0.tar.gz
@@ -42,7 +44,7 @@ ENV PATH="/software/kallisto_linux-v0.44.0:${PATH}"
 
 # Install Samtools 1.9
 RUN git clone --branch 1.9 --single-branch https://github.com/samtools/samtools.git && \
-    git clone --branch 1.9 --single-branch git://github.com/samtools/htslib.git && \
+    git clone --branch 1.9 --single-branch https://github.com/samtools/htslib.git && \
     cd samtools && make && make install && cd ../ && rm -rf samtools* htslib*
 
 # Install RSEM 1.2.31
