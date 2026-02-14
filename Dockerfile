@@ -1,6 +1,6 @@
-# Dockerfile for ENCODE-DCC rna-seq-pipeline
-FROM ubuntu@sha256:2695d3e10e69cc500a16eae6d6629c803c43ab075fa5ce60813a0fc49c47e859
-MAINTAINER Otto Jolanki
+# Dockerfile for shoyt5/rna-seq-pipeline-wasp (derivation of ENCODE-DCC rna-seq-pipeline)
+FROM ubuntu:22.04
+MAINTAINER Otto Jolanki & Stephanie Hoyt
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y \
@@ -15,8 +15,8 @@ RUN apt-get update && apt-get install -y \
     r-base-core \
     ghostscript && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install pandas==0.24.2
-RUN pip3 install pysam==0.15.3
+RUN pip3 install pandas==2.3.3
+RUN pip3 install pysam==0.23.3
 # Add mountpoint directory
 RUN mkdir /data
 # Stick to Jin's way of organizing the directory structure

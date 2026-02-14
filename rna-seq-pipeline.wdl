@@ -10,8 +10,8 @@ workflow rna {
     meta {
         author: "Otto Jolanki"
         version: "1.2.4"
-        caper_docker: "shoyt5/rna-seq-pipeline-wasp:latest"
-        caper_singularity: "docker://shoyt5/rna-seq-pipeline-wasp:latest"
+        caper_docker: "shoyt5/rna-seq-pipeline-wasp:0.2"
+        caper_singularity: "docker://shoyt5/rna-seq-pipeline-wasp:0.2"
         croo_out_def: "https://storage.googleapis.com/encode-pipeline-output-definition/bulkrna.output_definition.json"
         description: "ENCODE Bulk-RNA pipeline, see https://github.com/ENCODE-DCC/rna-seq-pipeline for details."
     }
@@ -74,8 +74,8 @@ workflow rna {
         # These are for internal use, leave undefined
         Int? kallisto_fragment_length_undefined
         Float? kallisto_sd_undefined
-        String docker = "shoyt5/rna-seq-pipeline-wasp"
-        String singularity = "docker://shoyt5/rna-seq-pipeline-wasp"
+        String docker = "shoyt5/rna-seq-pipeline-wasp:0.2"
+        String singularity = "docker://shoyt5/rna-seq-pipeline-wasp:0.2"
 
         #this is for running wasp within star 
         File varVCFfile
@@ -273,7 +273,7 @@ task align {
             --fastqs_R2 ~{sep=' ' fastqs_R2} \
             --endedness ~{endedness} \
             --index ~{index} \
-            --varVCFfile ~{varVCFfile}
+            --varVCFfile ~{varVCFfile} \
             ~{"--bamroot " + bamroot} \
             ~{"--ncpus " + ncpus} \
             ~{"--ramGB " + ramGB}
